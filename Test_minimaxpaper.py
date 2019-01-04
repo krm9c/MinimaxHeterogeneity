@@ -1,6 +1,6 @@
 # The test file
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = ' '
+os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import Class_Paper_CBD_minmaz as NN_class
 import tensorflow as tf
 import numpy as np
@@ -27,11 +27,11 @@ def return_dict(model, batch_x, batch_y, lr):
     S[model.classifier["learning_rate"]] = lr
     return S
 
-
 ####################################################################################
 def sample_Z(X, m, n, kappa):
-    # return (X+np.random.uniform(-kappa, kappa, size=[m, n]))
-    return(X+np.random.normal(0, kappa, size=[m, n]))
+    return (X+np.random.uniform(-kappa, kappa, size=[m, n]))
+    # return(X+np.random.normal(0, kappa, size=[m, n]))
+
 ####################################################################################
 def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, gamma, batch_size):
     import gc
@@ -41,7 +41,7 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ga
     depth.append(X_train.shape[1])
     L = [100 for i in xrange(5)]
     depth.extend(L)
-    lr = gamma
+    lr = 0.001
     batch_number    = 0
     updates         = 100
     model           = model.init_NN_custom(classes, lr, depth, tf.nn.relu, batch_size, gamma)
@@ -51,7 +51,7 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ga
     cost_M2         = np.zeros((Train_Glob_Iterations, 1))
     cost_M3         = np.zeros((Train_Glob_Iterations, 1))
     cost_Total      = np.zeros((Train_Glob_Iterations, 1))
-    T = sample_Z(X_test, X_test.shape[0], X_test.shape[1], kappa=1)
+    T = sample_Z(X_train, X_train.shape[0], X_train.shape[1], kappa=1)
     import random as random
     
     try:
@@ -59,7 +59,7 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ga
         from tqdm import tqdm
         for i in tqdm(t):
             lr   = 0.99*lr
-            lr_N = 0.99*lr
+            lr_N = lr
             batch_number = 0 
             
             ########### Batch learning update
@@ -80,11 +80,11 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ga
                 # Evaluation and display part
                 acc_array[i] = model.sess.run([ model.Evaluation['accuracy']], \
                 feed_dict={model.Deep['FL_layer_10']: T, model.classifier['Target']: \
-                y_test, model.classifier["learning_rate"]:lr})
+                y_train, model.classifier["learning_rate"]:lr})
                 
                 acc_array_train[i] = model.sess.run([ model.Evaluation['accuracy']],\
-                feed_dict={model.Deep['FL_layer_10']: X_test, model.classifier['Target']:\
-                y_test, model.classifier["learning_rate"]:lr})
+                feed_dict={model.Deep['FL_layer_10']: X_train, model.classifier['Target']:\
+                y_train, model.classifier["learning_rate"]:lr})
                 
                 cost_Total[i] = model.sess.run([model.classifier["Overall_cost"]],\
                 feed_dict={model.Deep['FL_layer_10']: batch_xs, model.classifier['Target']:\
@@ -99,11 +99,12 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ga
                 batch_ys, model.classifier["learning_rate"]:lr})
 
 
-                # # Print all the outputs
-                # print("---------------------------------------------------------------------------------------------------------")
-                # print("Accuracies", i, "With Noise", acc_array[i],"Without Noise", acc_array_train[i],)
-                # print("Overall Cost", cost_Total[i], "Cost_M1", cost_M1[i], "Cost_M2 KL", cost_M2[i], "Cost_M3 Z cost", cost_M3[i])
-                # print("---------------------------------------------------------------------------------------------------------")
+                # Print all the outputs
+                if(i % 49 == 0):
+                    print("---------------------------------------------------------------------------------------------------------")
+                    print("Accuracies", i, "With Noise", acc_array[i],"Without Noise", acc_array_train[i],)
+                    print("Overall Cost", cost_Total[i], "Cost_M1", cost_M1[i], "Cost_M2 KL", cost_M2[i], "Cost_M3 Z cost", cost_M3[i])
+                    print("---------------------------------------------------------------------------------------------------------")
 
                 # ################################################################################            
                 # Stop the learning in case of this condition being satisfied
@@ -136,7 +137,7 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ga
     np.reshape( (cost_M1), (len(kappa) ) ),\
     np.reshape( (cost_M2), (len(kappa))  ) 
 
-Gamma = 0.1*np.random.uniform(0, 1, size=[100])
+Gamma = np.random.uniform(0, 1, size=[100])
 from tqdm import tqdm
 for t in tqdm(xrange(len(Gamma))):
     gamma = Gamma[t]
@@ -157,7 +158,7 @@ for t in tqdm(xrange(len(Gamma))):
 
     print("Train", X_train.shape, "Test", X_test.shape)
     inputs = X_train.shape[1]
-    filename = 'LR/Mnist_Relu_5_Uniform_Noise'+str(gamma)+'.csv'
+    filename = 'Gamma_v1/Mnist_Relu_5_Uniform_Noise'+str(gamma)+'.csv'
     iterat_kappa = Train_Glob_Iterations 
     Kappa_s = np.random.uniform(0, 1, size=[iterat_kappa])
 

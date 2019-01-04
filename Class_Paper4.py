@@ -1,7 +1,6 @@
 # The distributed learning paradigm
 # Author : Krishnan Raghavan
 # Date: June 22nd, 2018
-
 #######################################################################################
 # Define all the libraries
 import random
@@ -9,7 +8,6 @@ import numpy as np
 import tensorflow as tf
 import operator
 from functools import reduce
-
 
 ####################################################################################
 # Helper Function for the weight and the bias variable initializations
