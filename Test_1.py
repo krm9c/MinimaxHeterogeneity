@@ -136,6 +136,7 @@ def Analyse_custom_Optimizer_GDR_old(X_train, y_train, X_test, y_test, kappa, ba
         return 0
     tf.reset_default_graph()
     gc.collect()
+    
     return np.reshape(acc_array, (len(kappa))),\
     np.reshape(acc_array_train, (len(kappa))),\
     np.reshape( (acc_array-acc_array_train), (len(kappa)) ),\

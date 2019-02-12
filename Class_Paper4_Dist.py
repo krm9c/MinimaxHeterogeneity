@@ -191,6 +191,7 @@ class learners():
             Layers[len(Layers)-1], classes, act=tf.identity, trainability=False, key='class')
             # weights for the final layer is appended on to the training list
             self.Weights.append((self.classifier['Weight'+'class'], self.classifier['Bias'+'class']))
+            
 ################################################################################################################           
     def New_Formulation(self, classes, Layers, act_function, batch_size, back_range = 1, rho = 0.8):
 
